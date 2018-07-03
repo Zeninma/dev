@@ -1,0 +1,137 @@
+/* Create sample Table */
+CREATE TABLE INVENTORY (SKU_CODE VARCHAR(30),WAREHOUSE BIGINT,QUANTITY BIGINT);
+
+INSERT INTO INVENTORY VALUES ('ABC123',1,50),('ABC123',2,100),('ABC123',3,60),('XYZ987',1,20),('XYZ321',2,0);
+
+
+/* Install jar file */
+CALL SQLJ.INSTALL_JAR('/home/ao/dev/custom-splice-procs/target/custom-splice-procs-1.0-SNAPSHOT.jar','SPLICE.CUSTOM_SPLICE_PROCS_JAR', 0);
+
+CALL SYSCS_UTIL.SYSCS_SET_GLOBAL_DATABASE_PROPERTY('derby.database.classpath', 'SPLICE.CUSTOM_SPLICE_PROCS_JAR');
+
+/* Create Stored Procedure Command */
+CREATE PROCEDURE SPLICE.GET_TABLE_NAMES() PARAMETER STYLE JAVA READS SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'org.splicetest.customprocs.CustomSpliceProcs.GET_TABLE_NAMES';
+
+/* Call test proc */
+splice> call SPLICE.GET_TABLE_NAMES();
+
+/* Python Stored Procedure Command */
+CREATE PROCEDURE SPLICE.PYTHON() PARAMETER STYLE JAVA READS SQL DATA LANGUAGE PYTHON DYNAMIC RESULT SETS 1 EXTERNAL NAME 'This should be Python text';
+
+#############################class path for toy example#############################
+com.splicemachine.db.impl.sql.compile.SPWrapper
+
+CREATE PROCEDURE SPLICE.RUN_SCRIPT() PARAMETER STYLE JAVA READS SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'com.splicemachine.db.impl.sql.compile.SPWrapper.RUN_SCRIPT';
+
+#############################Python Script 1#############################
+
+from __future__ import with_statement
+from com.ziclix.python.sql import zxJDBC
+
+# for example
+jdbc_url = "jdbc:splice://localhost:1527/splicedb"
+username = "splice"
+password = "admin"
+driver = "com.splicemachine.db.jdbc.ClientDriver"
+
+# obtain a connection using the with-statment
+def run(table_name):
+	conn = zxJDBC.connect(jdbc_url, username, password, driver)
+	c = conn.cursor()
+	c.execute("create table " + table_name + "(ID int, FNAME varchar(20), LNAME varchar(30)")
+	c.close()
+	conn.close()
+
+"create table " + tableName + " (ID int, FNAME varchar(20), LNAME varchar(30))"
+
+##########################Python Script 2###################################
+
+
+
+############################### Install the JAR file ###############################################
+CALL SQLJ.INSTALL_JAR('/home/ao/spliceengine/txn-it-procs/target/txn-it-procs-2.8.0.1821-SNAPSHOT.jar', 'SPLICE.TXN_IT_PROCS_JAR', 0);
+
+CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.database.classpath', 'SPLICE.TXN_IT_PROCS_JAR');
+
+CREATE PROCEDURE SPLICE.GET_JAVA_LIST(IN limit INT) PARAMETER STYLE JAVA READS SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'org.splicetest.txn.TxnTestProcs.GET_JAVA_LIST';
+
+CREATE PROCEDURE SPLICE.PYTHON_TEST(IN tableName VARCHAR(40)) PARAMETER STYLE JAVA MODIFIES SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 0 EXTERNAL NAME 'org.splicetest.txn.TxnTestProcs.PYTHON_CREATE_TABLE';
+
+###############################Create PYTHON_GET PROC CALL########################################
+CREATE PROCEDURE SPLICE.PYTHON_GET() PARAMETER STYLE JAVA READS SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'org.splicetest.txn.TxnTestProcs.PYTHON_GET';
+
+###############################Create GET_JAVA PROC CALL###########################################
+CREATE PROCEDURE SPLICE.GET_JAVA(IN limit INT) PARAMETER STYLE JAVA READS SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'org.splicetest.txn.TxnTestProcs.GET_JAVA';
+
+###############################Create FACTORY_TEST() PROC CALL#####################################
+
+CREATE PROCEDURE SPLICE.FACTORY_TEST() PARAMETER STYLE JAVA READS SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'org.splicetest.txn.TxnTestProcs.FACTORY_TEST';
+
+
+
+
+
+
+###########################################Demo Purpose#############################################
+CALL SQLJ.INSTALL_JAR('/home/ao/spliceengine/txn-it-procs/target/txn-it-procs-2.8.0.1821-SNAPSHOT.jar', 'SPLICE.TXN_IT_PROCS_JAR', 0);
+
+CALL SYSCS_UTIL.SYSCS_SET_DATABASE_PROPERTY('derby.database.classpath', 'SPLICE.TXN_IT_PROCS_JAR');
+
+CREATE PROCEDURE SPLICE.DEMO() PARAMETER STYLE JAVA READS SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'org.splicetest.txn.TxnTestProcs.DEMO';
+
+
+
+
+CREATE PROCEDURE SPLICE.PYTHON(IN limit INT) PARAMETER STYLE JAVA READS SQL DATA LANGUAGE PYTHON DYNAMIC RESULT SETS 1 EXTERNAL NAME 'from com.ziclix.python.sql import zxJDBC
+jdbc_url = "jdbc:default:connection"
+zxJDBC.autocommit = 1
+driver = "com.splicemachine.db.jdbc.ClientDriver"
+
+def run(lim, res):
+    conn = zxJDBC.connect(jdbc_url, None, None, driver)
+    c = conn.cursor()
+    stmt = "select alias, javaclassname from sys.sysaliases {limit ?}"
+    c.executemany(stmt,[lim])
+    d = c.description
+    result = c.fetchall()
+    res[0] = factory.create([d,result])
+    conn.commit()
+    c.close()
+    conn.close()';
+
+#####################################OUT PARAMS JAVA PROC##########################################
+CREATE PROCEDURE SPLICE.GET_EMPLOYEE_MULTIPLE_OUTPUT_PARAMS(IN tableName VARCHAR(40), IN id INT, OUT errorCode VARCHAR(100), OUT errorMessage VARCHAR(100)) PARAMETER STYLE JAVA MODIFIES SQL DATA LANGUAGE JAVA DYNAMIC RESULT SETS 1 EXTERNAL NAME 'org.splicetest.txn.TxnTestProcs.GET_EMPLOYEE_MULTIPLE_OUTPUT_PARAMS';
+
+###########################################preparedCall############################################
+prepare test as 'CALL SPLICE.GET_EMPLOYEE_MULTIPLE_OUTPUT_PARAMS(?, ?, ?, ?)';
+prepare addYears as 'update children set age = age + ? where name = ?';
+
+
+#######################################connImportScript#############################################
+from com.ziclix.python.sql import zxJDBC
+jdbc_url = "jdbc:default:connection"
+driver = "com.splicemachine.db.jdbc.ClientDriver"
+global conn
+conn = zxJDBC.connect(jdbc_url, None, None, driver)
+
+##########################################Testing Proc################################################
+CREATE PROCEDURE SPLICE.TEST_PROC() PARAMETER STYLE JAVA LANGUAGE PYTHON DYNAMIC RESULT SETS 4 EXTERNAL NAME 'def run(rs1, rs2, rs3, rs4):
+    c1 = conn.cursor()
+    c1.execute("VALUES(1)")
+    rs1[0] = factory.create([c1.description, c1.fetchall()])
+
+    c2 = conn.cursor()
+    c2.execute("VALUES(2)")
+    rs2[0] = factory.create([c2.description, c2.fetchall()])
+
+    c3 = conn.cursor()
+    c3.execute("VALUES(3)")
+    rs3[0] = factory.create([c3.description, c3.fetchall()])
+
+    c4 = conn.cursor()
+    c4.execute("VALUES(4)")
+    rs4[0] = factory.create([c4.description, c4.fetchall()])'
+
+
+
+

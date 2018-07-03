@@ -1,0 +1,20 @@
+Currently, my design is illustrated by the example in org.splicetest.txn FACTORY_TEST. The function is a template for the generated code.
+The following is what might change in the later implementation:
+Righ now, the ResultSet is filled in the Java code. By importing the PyStoredProcedureResultSetFactory, and put the ResultSet as a parameter into the Jython code, the user can fill the ResultSet[] in the Jython code. This resembles the current implementation of StoredProcedure.
+
+What differs from the current implementation of StoredProcedure is that the user will need to first extract the rows and the description of the columns from the result and then explicitly call PyStoredProcedureResultSetFacotry.create with these two arguments to create a ResultSet. Using the same method, the OUT, INOUT parameters of the StoredProcedure can also be passed into the Jython script. The user will be able to fill them. (The construction of the ResultSet is necessary, as there does not exist a way to directly convert the zxJDBC cursor into a JDBC ResultSet.)
+
+The user will also be able to fill the ResultSet, OUT and INOUT parameters with things that are not necessarily returned by a query. However, the user will need to use Java constructor to construct whatever they put in. For example, if the user wants to fill the result set with rows of String "a","b","c"... He needs to :
+{code}
+from java.lang import String
+from packageName import PyStoredProcedureResultSetFactory
+// Inside the Jython Script
+result_list = [String(a), String(b), String(c)]
+// Create a list of description of the result columns
+description_list = [('ColumnName', -9, 40, None, None, None, 0)]
+// Create a ResultSet
+resultSet = PyStoredProcedureResultSetFactory.create([result_list, description_list)
+resultSet[0] = resultSet
+{code}
+
+This might be redundant for the user. Another solution is to move the Jython to Java type coercion into the PyStoredProcedureResultSetFactory.create method. But this will add overhead into the code as additional conditional statements will be added in.

@@ -1,0 +1,9 @@
+I am having a problem while doing the decoupling. It would be great if I can get some help on this.
+
+#### My approach for decoupling
+In ordert to do the decoupling, I substitute ```storage::DataTable target_table``` in some plan objects with the corresponding database and table ```oid_t```. The ```storage::DataTale *GetTable()``` is replaced with ```storage::DataTable *GetTable(concurrency::TransactionContext *txnt)```. The new ```GetTable``` method uses the database and tabe ```oid_t``` to first get ```DatabaseCatalogObject``` and ```GetTableObject``` via (https://github.com/cmu-db/peloton/blob/master/src/include/catalog/catalog.h#L218), (https://github.com/cmu-db/peloton/blob/master/src/include/catalog/catalog.h#L228) in Catalog. Then uses ```GetTableWithName``` (https://github.com/cmu-db/peloton/blob/master/src/include/catalog/catalog.h#L207) to get the ```storage::DataTable``` object.
+
+#### My current Problem
+The ```GetDatabaseObject```, ```GetTableObject``` and ```GetTableWithName``` all requires the ```concurrency::TransactionContext```. However, under some circumstances, the transaction argument cannot be derived. Here is one such circumstance for instance:
+
+In the ```PostgresProtocolHandler::ExecBindMessage``` method it calls a plan object's ```SetParameterValues``` function (https://github.com/cmu-db/peloton/blob/master/src/network/postgres_protocol_handler.cpp#L526). If the plan object is an ```IndexScanPlan```, it will result in calling ```GetTable``` method(https://github.com/cmu-db/peloton/blob/master/src/planner/index_scan_plan.cpp#L88) and needs a ```concurrency::TransactionContext``` argument. However, the transaction object cannot be derived.

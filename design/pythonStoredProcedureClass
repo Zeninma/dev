@@ -1,0 +1,42 @@
+/*
+In CallableStatement.generate, the Class and method names are put onto the
+stack for code generation. Hence, I would like to add a wrapper class for
+the Python procedure - PythonProcedure. As the Python's method is wrapped
+inside the public static runPython function.
+One problem for such approach is how to convert a ResultSet from Python to
+JAVA.
+
+Such approach would require changes to the interpretation of the AliasInfo.
+
+On the user side, when the user defines the stored procedure, all the
+arguments can only be Strings except the result set. The user needs to explicitly
+convert the parameters from string to the desired type.
+*/
+
+
+public class PythonProcedure{
+	/*
+	The MethodName for all Python stored procedure is the same
+	@args: arguments are all passed in as String. The appropriate
+	conversion should be done in the user defined Python script.
+	*/
+	public static runPython(String[] args, argNum, ResultSet re){
+		// Check the arguments number is correct
+		// as argNum = args.length - 1
+		// Python script should be the first arguments
+		File Script = args[0];
+
+		List<PyString> pyArgs = new ArrayList<PyString>();
+		for(int i = 1; i < args.length; ++i){
+			pyArgs.add(new PyString(args[i]));
+		}
+		
+		PythonInterpreter interpreter = new PythonInterpreter();
+		interpreter.execfile(script);
+		PyFunction userFunc = (PyFunction) interpreter.get("func_name",
+		PyFunction.class);
+		
+		// Need to figure out how to pass in the ResultSet and do the
+		// conversion.
+	}
+}

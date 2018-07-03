@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="db-client-2.8.0.1821-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/spliceengine/db-client/target/db-client-2.8.0.1821-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
