@@ -1,0 +1,31 @@
+===================================Python procedure====================
+ParameterTypes:
+	0: "INTEGER"
+	1: "LONG VARCHAR"
+ParameterModes:
+	0:4
+	1:1
+signature (sqlType):
+	0: int[]
+	1: LONG VARCHAR
+methodParms:
+	0: dataTypeServices: INTEGER
+	1: value: [Python script]
+methodParameterTypes:
+	0: int[]
+	1: java.lang.String
+
+======================================Java procedure====================
+ParameterTypes:
+	0: "INTEGER"
+	1: "LONG VARCHAR"
+ParameterModes:
+	0:4
+	1:1
+signature (sqlType):
+	0: int[]
+methodParms:
+	0: dataTypeServices: INTEGER
+methodParameterTypes:
+	0: int[]
+	1: java.lang.String
